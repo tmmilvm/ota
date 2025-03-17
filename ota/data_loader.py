@@ -29,7 +29,7 @@ class CsvLoader(DataLoader):
     _batch_size: int
 
     def __init__(
-        self, path: Path, schema: Schema, batch_size: int = 10
+        self, path: Path, schema: Schema, batch_size: int = 1_000
     ) -> None:
         self._path = path
         self._schema = schema

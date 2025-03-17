@@ -1,5 +1,5 @@
-from column import Column
-from schema import Schema
+from ota.column import Column
+from ota.schema import Schema
 
 
 class RowBatch:
