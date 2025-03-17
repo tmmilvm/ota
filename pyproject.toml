@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ota"
+version = "0.0.1"
+requires-python = ">= 3.10"
+readme = "README.md"
+
+[project.scripts]
+ota = "cli:main"
+
+[tool.ruff]
+line-length = 80
+lint.extend-select = ["I"]
