@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ota.logical.plan.base import LogicalPlan
+from ota.logical.plan.abc import LogicalPlan
 from ota.schema import DataType
 
 

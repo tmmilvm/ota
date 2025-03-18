@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Generator
 
 from ota.data_loader import CsvLoader
-from ota.logical.plan.base import LogicalPlan
+from ota.logical.plan.abc import LogicalPlan
 from ota.logical.plan.builder import LogicalPlanBuilder
 from ota.logical.plan.impls import LogicalScan
 from ota.query_planner import create_physical_plan

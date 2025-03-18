@@ -1,10 +1,10 @@
 from typing import cast
 
-from ota.logical.expr.base import LogicalExpr
+from ota.logical.expr.abc import LogicalExpr
 from ota.logical.expr.impls import LogicalColumnExpr
-from ota.logical.plan.base import LogicalPlan
+from ota.logical.plan.abc import LogicalPlan
 from ota.logical.plan.impls import LogicalProjection, LogicalScan
-from ota.physical.expr.base import PhysicalExpr
+from ota.physical.expr.abc import PhysicalExpr
 from ota.physical.expr.impls import PhysicalColumnExpr
 from ota.physical.plan.impls import PhysicalProjection, PhysicalScan
 from ota.schema import Schema
@@ -19,44 +19,45 @@ def create_physical_plan(logical_plan: LogicalPlan):
             )
         case LogicalProjection():
             logical_plan = cast(LogicalProjection, logical_plan)
-            input_plan = create_physical_plan(logical_plan.get_input_plan())
-            schema_fields = {}
-            for expr in logical_plan.get_exprs():
-                schema_fields = schema_fields | expr.to_schema_field(
-                    logical_plan.get_input_plan()
-                )
-            projection_schema = Schema(schema_fields)
-            projection_exprs = list(
-                map(
-                    lambda expr: _create_physical_expr(
-                        expr, logical_plan.get_input_plan()
-                    ),
-                    logical_plan.get_exprs(),
-                )
-            )
-            return PhysicalProjection(
-                input_plan, projection_schema, projection_exprs
-            )
+            return _create_physical_projection(logical_plan)
         case _:
             raise RuntimeError(f"Unsupported plan: {logical_plan}")
 
 
+def _create_physical_projection(
+    logical_plan: LogicalProjection,
+) -> PhysicalProjection:
+    input_plan = create_physical_plan(logical_plan.get_input_plan())
+    schema_fields = {}
+    for expr in logical_plan.get_exprs():
+        schema_fields |= expr.to_schema_field(logical_plan.get_input_plan())
+    projection_schema = Schema(schema_fields)
+    projection_exprs = list(
+        map(
+            lambda expr: _create_physical_expr(
+                expr, logical_plan.get_input_plan()
+            ),
+            logical_plan.get_exprs(),
+        )
+    )
+    return PhysicalProjection(input_plan, projection_schema, projection_exprs)
+
+
 def _create_physical_expr(
-    from_expr: LogicalExpr, input_plan: LogicalPlan
+    logical_expr: LogicalExpr, input_plan: LogicalPlan
 ) -> PhysicalExpr:
-    assert isinstance(from_expr, LogicalColumnExpr)
-    match from_expr:
+    match logical_expr:
         case LogicalColumnExpr():
-            from_expr = cast(LogicalColumnExpr, from_expr)
-            return _create_physical_column_expr(from_expr, input_plan)
+            logical_expr = cast(LogicalColumnExpr, logical_expr)
+            return _create_physical_column_expr(logical_expr, input_plan)
         case _:
-            raise RuntimeError(f"Unsupported expr: {from_expr}")
+            raise RuntimeError(f"Unsupported expr: {logical_expr}")
 
 
 def _create_physical_column_expr(
-    from_expr: LogicalColumnExpr, input_plan: LogicalPlan
+    logical_expr: LogicalColumnExpr, input_plan: LogicalPlan
 ) -> PhysicalColumnExpr:
-    column_name = from_expr.get_column_name()
+    column_name = logical_expr.get_column_name()
     column_names = list(input_plan.get_schema().get_fields().keys())
     try:
         index = column_names.index(column_name)

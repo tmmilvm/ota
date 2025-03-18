@@ -1,7 +1,7 @@
-from ota.logical.plan.base import LogicalPlan
+from ota.logical.plan.abc import LogicalPlan
 from ota.schema import DataType
 
-from .base import LogicalExpr
+from .abc import LogicalExpr
 
 
 class LogicalColumnExpr(LogicalExpr):

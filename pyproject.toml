@@ -14,7 +14,7 @@ dev = [
 ]
 
 [project.scripts]
-ota = "cli:main"
+ota = "ota.cli:main"
 
 [tool.ruff]
 line-length = 80

@@ -1,11 +1,11 @@
 from typing import Generator
 
 from ota.data_loader import DataLoader
-from ota.physical.expr.base import PhysicalExpr
+from ota.physical.expr.abc import PhysicalExpr
 from ota.row_batch import RowBatch
 from ota.schema import Schema
 
-from .base import PhysicalPlan
+from .abc import PhysicalPlan
 
 
 class PhysicalScan(PhysicalPlan):

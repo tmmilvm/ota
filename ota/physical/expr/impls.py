@@ -1,7 +1,7 @@
 from ota.column import Column
 from ota.row_batch import RowBatch
 
-from .base import PhysicalExpr
+from .abc import PhysicalExpr
 
 
 class PhysicalColumnExpr(PhysicalExpr):

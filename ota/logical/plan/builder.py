@@ -1,7 +1,7 @@
-from ota.logical.expr.base import LogicalExpr
+from ota.logical.expr.abc import LogicalExpr
 from ota.schema import Schema
 
-from .base import LogicalPlan
+from .abc import LogicalPlan
 from .impls import LogicalProjection
 
 
