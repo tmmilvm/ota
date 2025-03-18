@@ -12,14 +12,15 @@ A simple query engine, created to explore how these kinds of systems are impleme
   - Projection
   - Selection (filtering)
 - Expressions:
-  - Int literal
+  - Literals:
+    - Int
   - Math expressions:
     - Addition
     - Subtraction
     - Multiplication
     - Division
     - Modulo
-  - Boolean expressions
+  - Boolean expressions:
     - (Not) equal
     - Greater-than(-or-equal)
     - Less-than(-or-equal)
