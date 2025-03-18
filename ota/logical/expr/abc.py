@@ -1,15 +1,35 @@
 from abc import ABC, abstractmethod
 
 from ota.logical.plan.abc import LogicalPlan
-from ota.schema import DataType
+from ota.schema import SchemaField
 
 
 class LogicalExpr(ABC):
-    @abstractmethod
-    def __str__(self): ...
+    """Captures basic metadata about an expression."""
 
     @abstractmethod
-    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]: ...
+    def __str__(self):
+        """Returns a string representation of the expression.
+
+        Returns:
+            A string.
+        """
+        ...
+
+    @abstractmethod
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        """Returns the output data type of the expression.
+
+        For some expressions the returned data type will depend on the type of
+        data the expression is run against, for others the data type is always
+        the same.
+
+        Args:
+            plan: The input data.
+        Returns:
+            A schema field.
+        """
+        ...
 
 
 class LogicalBinaryExpr(LogicalExpr):
@@ -31,7 +51,7 @@ class LogicalBinaryExpr(LogicalExpr):
         return f"{self._left_operand} {self._operator} {self._right_operand}"
 
     @abstractmethod
-    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]: ...
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField: ...
 
     def get_left_operand(self):
         return self._left_operand
@@ -51,9 +71,6 @@ class LogicalMathExpr(LogicalBinaryExpr):
             raise RuntimeError("Can't instantiate LogicalMathExpr directly")
         super().__init__(operator, left_operand, right_operand)
 
-    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]:
-        return {
-            self._operator: list(
-                self._left_operand.to_schema_field(plan).values()
-            )[0]
-        }
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        data_type = self._left_operand.to_schema_field(plan).data_type
+        return SchemaField(self._operator, data_type)

@@ -54,7 +54,7 @@ class CsvLoader(DataLoader):
                 read_rows.append(
                     {
                         column_name: row[column_name]
-                        for column_name in schema.get_fields().keys()
+                        for column_name in schema.get_field_names()
                     }
                 )
                 if num_rows_read % self._batch_size == 0:
@@ -66,7 +66,7 @@ class CsvLoader(DataLoader):
 
 def _to_row_batch(read_rows: list[dict], schema: Schema) -> RowBatch:
     columns = []
-    for column_name in schema.get_fields().keys():
+    for column_name in schema.get_field_names():
         data_type = schema.get_data_type(column_name)
         values = [read_row[column_name] for read_row in read_rows]
         columns.append(Column(data_type, values))

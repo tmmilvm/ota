@@ -1,5 +1,5 @@
 from ota.logical.plan.abc import LogicalPlan
-from ota.schema import DataType
+from ota.schema import DataType, SchemaField
 
 from .abc import LogicalExpr, LogicalMathExpr
 
@@ -13,12 +13,11 @@ class LogicalColumnExpr(LogicalExpr):
     def __str__(self):
         return f"#{self._column_name}"
 
-    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]:
-        return {
-            self._column_name: plan.get_schema().get_data_type(
-                self._column_name
-            )
-        }
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        return SchemaField(
+            self._column_name,
+            plan.get_schema().get_data_type(self._column_name),
+        )
 
     def get_column_name(self) -> str:
         return self._column_name
@@ -81,5 +80,5 @@ class LogicalLiteralIntExpr(LogicalExpr):
     def get_value(self) -> int:
         return self._of
 
-    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]:
-        return {str(self._of): DataType.Int}
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        return SchemaField(str(self._of), DataType.Int)
