@@ -69,16 +69,41 @@ class LogicalMathExprModulo(LogicalMathExpr):
 
 
 class LogicalLiteralIntExpr(LogicalExpr):
-    _of: int
+    """An integer literal.
 
-    def __init__(self, of: int) -> None:
-        self._of = of
+    Attributes:
+        _number: An integer.
+    """
+    _number: int
+
+    def __init__(self, number: int) -> None:
+        """Initializer.
+
+        Args:
+            number: The number.
+        """
+        self._number = number
 
     def __str__(self) -> str:
-        return str(self._of)
+        """Returns a string representation of the literal.
+
+        Returns:
+            The literal as a string.
+        """
+        return str(self._number)
 
     def get_value(self) -> int:
-        return self._of
+        """Returns the value of the literal.
+
+        Returns:
+            The value.
+        """
+        return self._number
 
     def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
-        return SchemaField(str(self._of), DataType.Int)
+        """Returns a schema field with data type `DataType.Int`.
+
+        Returns:
+            A schema field for the literal.
+        """
+        return SchemaField(str(self._number), DataType.Int)
