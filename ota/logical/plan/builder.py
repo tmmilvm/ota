@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from ota.logical.expr.abc import LogicalExpr
 from ota.schema import Schema
 
 from .abc import LogicalPlan
-from .impls import LogicalProjection
+from .impls import LogicalProjection, LogicalSelection
 
 
 class LogicalPlanBuilder:
@@ -17,5 +19,8 @@ class LogicalPlanBuilder:
     def get_logical_plan(self) -> LogicalPlan:
         return self._plan
 
-    def project(self, exprs: list[LogicalExpr]) -> "LogicalPlanBuilder":
+    def project(self, exprs: list[LogicalExpr]) -> LogicalPlanBuilder:
         return LogicalPlanBuilder(LogicalProjection(self._plan, exprs))
+
+    def select(self, expr: LogicalExpr) -> LogicalPlanBuilder:
+        return LogicalPlanBuilder(LogicalSelection(self._plan, expr))

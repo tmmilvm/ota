@@ -9,7 +9,7 @@ class Column:
 
     def __init__(self, data_type: DataType, values: list[int]) -> None:
         self._data_type = data_type
-        cast = {DataType.Int: int}[data_type]
+        cast = {DataType.Int: int, DataType.Bool: bool}[data_type]
         self._values = list(map(cast, values))
 
     def __getitem__(self, item):

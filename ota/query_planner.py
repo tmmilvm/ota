@@ -19,7 +19,11 @@ from ota.logical.expr.impls import (
     LogicalMathExprSubtract,
 )
 from ota.logical.plan.abc import LogicalPlan
-from ota.logical.plan.impls import LogicalProjection, LogicalScan
+from ota.logical.plan.impls import (
+    LogicalProjection,
+    LogicalScan,
+    LogicalSelection,
+)
 from ota.physical.expr.abc import PhysicalBinaryExpr, PhysicalExpr
 from ota.physical.expr.impls import (
     PhysicalBooleanExprAnd,
@@ -38,7 +42,11 @@ from ota.physical.expr.impls import (
     PhysicalMathExprMultiply,
     PhysicalMathExprSubtract,
 )
-from ota.physical.plan.impls import PhysicalProjection, PhysicalScan
+from ota.physical.plan.impls import (
+    PhysicalProjection,
+    PhysicalScan,
+    PhysicalSelection,
+)
 from ota.schema import Schema
 
 
@@ -52,6 +60,13 @@ def create_physical_plan(logical_plan: LogicalPlan):
         case LogicalProjection():
             logical_plan = cast(LogicalProjection, logical_plan)
             return _create_physical_projection(logical_plan)
+        case LogicalSelection():
+            logical_plan = cast(LogicalSelection, logical_plan)
+            input_plan = create_physical_plan(logical_plan.get_input_plan())
+            filter_expr = _create_physical_expr(
+                logical_plan.get_expr(), logical_plan.get_input_plan()
+            )
+            return PhysicalSelection(input_plan, filter_expr)
         case _:
             raise RuntimeError(f"Unsupported plan: {logical_plan}")
 

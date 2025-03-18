@@ -62,3 +62,27 @@ class LogicalProjection(LogicalPlan):
 
     def get_exprs(self) -> list[LogicalExpr]:
         return self._exprs
+
+
+class LogicalSelection(LogicalPlan):
+    _input_plan: LogicalPlan
+    _expr: LogicalExpr
+
+    def __init__(self, input_plan: LogicalPlan, expr: LogicalExpr) -> None:
+        self._input_plan = input_plan
+        self._expr = expr
+
+    def __str__(self) -> str:
+        return f"Selection: {self._expr}"
+
+    def get_schema(self) -> Schema:
+        return self._input_plan.get_schema()
+
+    def get_children(self) -> list["LogicalPlan"]:
+        return [self._input_plan]
+
+    def get_input_plan(self) -> LogicalPlan:
+        return self._input_plan
+
+    def get_expr(self) -> LogicalExpr:
+        return self._expr

@@ -10,6 +10,7 @@ A simple query engine, created to explore how these kinds of systems are impleme
 - Operations:
   - Scan
   - Projection
+  - Selection (filtering)
 - Expressions:
   - Int literal
   - Math expressions:
