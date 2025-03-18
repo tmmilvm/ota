@@ -1,7 +1,7 @@
 from ota.logical.plan.abc import LogicalPlan
 from ota.schema import DataType
 
-from .abc import LogicalExpr
+from .abc import LogicalExpr, LogicalMathExpr
 
 
 class LogicalColumnExpr(LogicalExpr):
@@ -22,3 +22,12 @@ class LogicalColumnExpr(LogicalExpr):
 
     def get_column_name(self) -> str:
         return self._column_name
+
+
+class LogicalMathExprAdd(LogicalMathExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("+", left_operand, right_operand)

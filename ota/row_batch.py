@@ -28,6 +28,6 @@ class RowBatch:
             for col_index in range(self.num_columns()):
                 if col_index:
                     csv_str += ","
-                csv_str += self._columns[col_index][row_index]
+                csv_str += str(self._columns[col_index][row_index])
             csv_str += "\n"
         return csv_str
