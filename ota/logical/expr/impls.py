@@ -31,3 +31,39 @@ class LogicalMathExprAdd(LogicalMathExpr):
         right_operand: LogicalExpr,
     ) -> None:
         super().__init__("+", left_operand, right_operand)
+
+
+class LogicalMathExprSubtract(LogicalMathExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("-", left_operand, right_operand)
+
+
+class LogicalMathExprMultiply(LogicalMathExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("*", left_operand, right_operand)
+
+
+class LogicalMathExprDivide(LogicalMathExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("/", left_operand, right_operand)
+
+
+class LogicalMathExprModulo(LogicalMathExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("%", left_operand, right_operand)

@@ -5,11 +5,12 @@ from ota.schema import DataType
 
 class Column:
     _data_type: DataType
-    _values: list
+    _values: list[int]
 
-    def __init__(self, data_type: DataType, values: list) -> None:
+    def __init__(self, data_type: DataType, values: list[int]) -> None:
         self._data_type = data_type
-        self._values = values
+        cast = {DataType.Int: int}[data_type]
+        self._values = list(map(cast, values))
 
     def __getitem__(self, item):
         """Returns the element corresponding to the given index.

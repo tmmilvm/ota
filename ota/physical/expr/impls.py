@@ -1,7 +1,7 @@
 from ota.column import Column
 from ota.row_batch import RowBatch
-
 from ota.schema import DataType
+
 from .abc import PhysicalExpr, PhysicalMathExpr
 
 
@@ -30,6 +30,74 @@ class PhysicalMathExprAdd(PhysicalMathExpr):
     ):
         match data_type:
             case DataType.Int:
-                return int(left_operand) + int(right_operand)
+                return left_operand + right_operand
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalMathExprSubtract(PhysicalMathExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr}-{self._right_expr}"
+
+    def _evaluate_impl(
+        self,
+        left_operand: int | float,
+        right_operand: int | float,
+        data_type: DataType,
+    ):
+        match data_type:
+            case DataType.Int:
+                return left_operand - right_operand
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalMathExprMultiply(PhysicalMathExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr}*{self._right_expr}"
+
+    def _evaluate_impl(
+        self,
+        left_operand: int,
+        right_operand: int,
+        data_type: DataType,
+    ):
+        match data_type:
+            case DataType.Int:
+                return left_operand * right_operand
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalMathExprDivide(PhysicalMathExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr}/{self._right_expr}"
+
+    def _evaluate_impl(
+        self,
+        left_operand: int,
+        right_operand: int,
+        data_type: DataType,
+    ):
+        match data_type:
+            case DataType.Int:
+                return int(left_operand / right_operand)
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalMathExprModulo(PhysicalMathExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr}%{self._right_expr}"
+
+    def _evaluate_impl(
+        self,
+        left_operand: int,
+        right_operand: int,
+        data_type: DataType,
+    ):
+        match data_type:
+            case DataType.Int:
+                return left_operand % right_operand
             case _:
                 raise RuntimeError("Unsupported data type")
