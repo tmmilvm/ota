@@ -67,3 +67,19 @@ class LogicalMathExprModulo(LogicalMathExpr):
         right_operand: LogicalExpr,
     ) -> None:
         super().__init__("%", left_operand, right_operand)
+
+
+class LogicalLiteralIntExpr(LogicalExpr):
+    _of: int
+
+    def __init__(self, of: int) -> None:
+        self._of = of
+
+    def __str__(self) -> str:
+        return str(self._of)
+
+    def get_value(self) -> int:
+        return self._of
+
+    def to_schema_field(self, plan: LogicalPlan) -> dict[str, DataType]:
+        return {str(self._of): DataType.Int}

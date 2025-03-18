@@ -5,6 +5,7 @@ import pytest
 from ota.execution_context import ExecutionContext
 from ota.logical.expr.impls import (
     LogicalColumnExpr,
+    LogicalLiteralIntExpr,
     LogicalMathExprAdd,
     LogicalMathExprDivide,
     LogicalMathExprModulo,
@@ -45,7 +46,7 @@ def test_e2e(test_csv_file):
                     LogicalColumnExpr("a"), LogicalColumnExpr("b")
                 ),
                 LogicalMathExprMultiply(
-                    LogicalColumnExpr("a"), LogicalColumnExpr("b")
+                    LogicalColumnExpr("a"), LogicalLiteralIntExpr(23)
                 ),
                 LogicalMathExprDivide(
                     LogicalColumnExpr("a"), LogicalColumnExpr("b")
@@ -66,6 +67,6 @@ def test_e2e(test_csv_file):
     for i in range(1000):
         assert batch.get_column(2)[i] == i + (i + 1)
         assert batch.get_column(3)[i] == i - (i + 1)
-        assert batch.get_column(4)[i] == i * (i + 1)
+        assert batch.get_column(4)[i] == i * 23
         assert batch.get_column(5)[i] == int(i / (i + 1))
         assert batch.get_column(6)[i] == i % (i + 1)

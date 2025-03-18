@@ -101,3 +101,17 @@ class PhysicalMathExprModulo(PhysicalMathExpr):
                 return left_operand % right_operand
             case _:
                 raise RuntimeError("Unsupported data type")
+
+
+class PhysicalLiteralIntExpr(PhysicalExpr):
+    _of: int
+
+    def __init__(self, of: int) -> None:
+        self._of = of
+
+    def __str__(self) -> str:
+        return str(self._of)
+
+    def evaluate(self, input_batch: RowBatch) -> Column:
+        # TODO: Create a literal column class to optimize this
+        return Column(DataType.Int, [self._of] * input_batch.num_rows())

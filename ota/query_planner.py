@@ -3,6 +3,7 @@ from typing import cast
 from ota.logical.expr.abc import LogicalBinaryExpr, LogicalExpr
 from ota.logical.expr.impls import (
     LogicalColumnExpr,
+    LogicalLiteralIntExpr,
     LogicalMathExprAdd,
     LogicalMathExprDivide,
     LogicalMathExprModulo,
@@ -14,6 +15,7 @@ from ota.logical.plan.impls import LogicalProjection, LogicalScan
 from ota.physical.expr.abc import PhysicalBinaryExpr, PhysicalExpr
 from ota.physical.expr.impls import (
     PhysicalColumnExpr,
+    PhysicalLiteralIntExpr,
     PhysicalMathExprAdd,
     PhysicalMathExprDivide,
     PhysicalMathExprModulo,
@@ -67,6 +69,9 @@ def _create_physical_expr(
         case LogicalBinaryExpr():
             binary_expr = cast(LogicalBinaryExpr, logical_expr)
             return _create_physical_binary_expr(binary_expr, input_plan)
+        case LogicalLiteralIntExpr():
+            literal_int_expr = cast(LogicalLiteralIntExpr, logical_expr)
+            return PhysicalLiteralIntExpr(literal_int_expr.get_value())
         case _:
             raise RuntimeError(f"Unsupported expr: {logical_expr}")
 
