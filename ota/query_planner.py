@@ -2,6 +2,14 @@ from typing import cast
 
 from ota.logical.expr.abc import LogicalBinaryExpr, LogicalExpr
 from ota.logical.expr.impls import (
+    LogicalBooleanExprAnd,
+    LogicalBooleanExprEq,
+    LogicalBooleanExprGt,
+    LogicalBooleanExprGtEq,
+    LogicalBooleanExprLt,
+    LogicalBooleanExprLtEq,
+    LogicalBooleanExprNeq,
+    LogicalBooleanExprOr,
     LogicalColumnExpr,
     LogicalLiteralIntExpr,
     LogicalMathExprAdd,
@@ -14,6 +22,14 @@ from ota.logical.plan.abc import LogicalPlan
 from ota.logical.plan.impls import LogicalProjection, LogicalScan
 from ota.physical.expr.abc import PhysicalBinaryExpr, PhysicalExpr
 from ota.physical.expr.impls import (
+    PhysicalBooleanExprAnd,
+    PhysicalBooleanExprEq,
+    PhysicalBooleanExprGt,
+    PhysicalBooleanExprGtEq,
+    PhysicalBooleanExprLt,
+    PhysicalBooleanExprLtEq,
+    PhysicalBooleanExprNeq,
+    PhysicalBooleanExprOr,
     PhysicalColumnExpr,
     PhysicalLiteralIntExpr,
     PhysicalMathExprAdd,
@@ -110,5 +126,21 @@ def _create_physical_binary_expr(
             return PhysicalMathExprDivide(left_expr, right_expr)
         case LogicalMathExprModulo():
             return PhysicalMathExprModulo(left_expr, right_expr)
+        case LogicalBooleanExprEq():
+            return PhysicalBooleanExprEq(left_expr, right_expr)
+        case LogicalBooleanExprNeq():
+            return PhysicalBooleanExprNeq(left_expr, right_expr)
+        case LogicalBooleanExprGt():
+            return PhysicalBooleanExprGt(left_expr, right_expr)
+        case LogicalBooleanExprGtEq():
+            return PhysicalBooleanExprGtEq(left_expr, right_expr)
+        case LogicalBooleanExprLt():
+            return PhysicalBooleanExprLt(left_expr, right_expr)
+        case LogicalBooleanExprLtEq():
+            return PhysicalBooleanExprLtEq(left_expr, right_expr)
+        case LogicalBooleanExprAnd():
+            return PhysicalBooleanExprAnd(left_expr, right_expr)
+        case LogicalBooleanExprOr():
+            return PhysicalBooleanExprOr(left_expr, right_expr)
         case _:
             raise RuntimeError(f"Unsupported expr: {logical_expr}")

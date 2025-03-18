@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from ota.column import Column
 from ota.row_batch import RowBatch
@@ -48,11 +49,27 @@ class PhysicalMathExpr(PhysicalBinaryExpr):
 
     def _evaluate(self, left_value: Column, right_value: Column):
         data_type = left_value.get_data_type()
-        values = []
-
-        for i in range(left_value.size()):
-            values.append(
-                self._evaluate_impl(left_value[i], right_value[i], data_type)
-            )
-
+        values = [
+            self._evaluate_impl(left_value[i], right_value[i], data_type)
+            for i in range(left_value.size())
+        ]
         return Column(data_type, values)
+
+
+class PhysicalBooleanExpr(PhysicalBinaryExpr):
+    @abstractmethod
+    def _evaluate_impl(
+        self,
+        left_operand: Any,
+        right_operand: Any,
+        data_type: DataType,
+    ): ...
+
+    def _evaluate(self, left_value: Column, right_value: Column):
+        values = [
+            self._evaluate_impl(
+                left_value[i], right_value[i], left_value.get_data_type()
+            )
+            for i in range(left_value.size())
+        ]
+        return Column(DataType.Bool, values)

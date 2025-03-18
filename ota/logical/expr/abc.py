@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from ota.logical.plan.abc import LogicalPlan
-from ota.schema import SchemaField
+from ota.schema import DataType, SchemaField
 
 
 class LogicalExpr(ABC):
@@ -123,3 +123,40 @@ class LogicalMathExpr(LogicalBinaryExpr):
         """
         data_type = self._left_operand.to_schema_field(plan).data_type
         return SchemaField(self._operator, data_type)
+
+
+class LogicalBooleanExpr(LogicalBinaryExpr):
+    """A boolean expression taking two inputs.
+
+    Attributes:
+        _operator: The operator.
+        _left_operand: Left operand.
+        _right_operand: Right operand.
+    """
+
+    def __init__(
+        self,
+        operator: str,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        """Initializer.
+
+        Args:
+            operator: The operator.
+            left_operand: Left operand.
+            right_operand: Right operand.
+        """
+        if type(self) is LogicalBooleanExpr:
+            raise RuntimeError("Can't instantiate LogicalBooleanExpr directly")
+        super().__init__(operator, left_operand, right_operand)
+
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        """Returns a schema field with a boolean data type.
+
+        Args:
+            plan: The input data.
+        Returns:
+            A schema field.
+        """
+        return SchemaField(self._operator, DataType.Bool)

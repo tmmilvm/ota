@@ -1,8 +1,10 @@
+from typing import Any
+
 from ota.column import Column
 from ota.row_batch import RowBatch
 from ota.schema import DataType
 
-from .abc import PhysicalExpr, PhysicalMathExpr
+from .abc import PhysicalBooleanExpr, PhysicalExpr, PhysicalMathExpr
 
 
 class PhysicalColumnExpr(PhysicalExpr):
@@ -99,6 +101,104 @@ class PhysicalMathExprModulo(PhysicalMathExpr):
         match data_type:
             case DataType.Int:
                 return left_operand % right_operand
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalBooleanExprEq(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} = {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand == right_operand
+
+
+class PhysicalBooleanExprNeq(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} != {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand != right_operand
+
+
+class PhysicalBooleanExprGt(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} > {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand > right_operand
+
+
+class PhysicalBooleanExprGtEq(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} >= {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand >= right_operand
+
+
+class PhysicalBooleanExprLt(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} < {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand < right_operand
+
+
+class PhysicalBooleanExprLtEq(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} <= {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        assert data_type == DataType.Int
+        return left_operand <= right_operand
+
+
+class PhysicalBooleanExprAnd(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} AND {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        match data_type:
+            case DataType.Int():
+                return (left_operand == 1) and (right_operand == 1)
+            case DataType.Bool():
+                return left_operand and right_operand
+            case _:
+                raise RuntimeError("Unsupported data type")
+
+
+class PhysicalBooleanExprOr(PhysicalBooleanExpr):
+    def __str__(self) -> str:
+        return f"{self._left_expr} OR {self._right_expr}"
+
+    def _evaluate_impl(
+        self, left_operand: Any, right_operand: Any, data_type: DataType
+    ):
+        match data_type:
+            case DataType.Int():
+                return (left_operand == 1) or (right_operand == 1)
+            case DataType.Bool():
+                return left_operand or right_operand
             case _:
                 raise RuntimeError("Unsupported data type")
 

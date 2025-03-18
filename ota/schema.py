@@ -8,6 +8,7 @@ class DataType(Enum):
     """Data types."""
 
     Int = 1
+    Bool = 2
 
 
 @dataclass()

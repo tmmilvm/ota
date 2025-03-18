@@ -1,7 +1,7 @@
 from ota.logical.plan.abc import LogicalPlan
 from ota.schema import DataType, SchemaField
 
-from .abc import LogicalExpr, LogicalMathExpr
+from .abc import LogicalBooleanExpr, LogicalExpr, LogicalMathExpr
 
 
 class LogicalColumnExpr(LogicalExpr):
@@ -68,12 +68,85 @@ class LogicalMathExprModulo(LogicalMathExpr):
         super().__init__("%", left_operand, right_operand)
 
 
+class LogicalBooleanExprEq(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("=", left_operand, right_operand)
+
+
+class LogicalBooleanExprNeq(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("!=", left_operand, right_operand)
+
+
+class LogicalBooleanExprGt(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__(">", left_operand, right_operand)
+
+
+class LogicalBooleanExprGtEq(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__(">=", left_operand, right_operand)
+
+
+class LogicalBooleanExprLt(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("<", left_operand, right_operand)
+
+
+class LogicalBooleanExprLtEq(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("<=", left_operand, right_operand)
+
+
+class LogicalBooleanExprAnd(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("AND", left_operand, right_operand)
+
+
+class LogicalBooleanExprOr(LogicalBooleanExpr):
+    def __init__(
+        self,
+        left_operand: LogicalExpr,
+        right_operand: LogicalExpr,
+    ) -> None:
+        super().__init__("OR", left_operand, right_operand)
+
+
 class LogicalLiteralIntExpr(LogicalExpr):
     """An integer literal.
 
     Attributes:
         _number: An integer.
     """
+
     _number: int
 
     def __init__(self, number: int) -> None:
