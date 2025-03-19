@@ -15,7 +15,7 @@ class LogicalColumnExpr(LogicalExpr):
     def __init__(self, column_name) -> None:
         self._column_name = column_name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"#{self._column_name}"
 
     def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
@@ -146,44 +146,18 @@ class LogicalBooleanExprOr(LogicalBooleanExpr):
 
 
 class LogicalLiteralIntExpr(LogicalExpr):
-    """An integer literal.
-
-    Attributes:
-        _number: An integer.
-    """
-
     _number: int
 
     def __init__(self, number: int) -> None:
-        """Initializer.
-
-        Args:
-            number: The number.
-        """
         self._number = number
 
     def __str__(self) -> str:
-        """Returns a string representation of the literal.
-
-        Returns:
-            The literal as a string.
-        """
         return str(self._number)
 
     def get_value(self) -> int:
-        """Returns the value of the literal.
-
-        Returns:
-            The value.
-        """
         return self._number
 
     def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
-        """Returns a schema field with data type `DataType.Int`.
-
-        Returns:
-            A schema field for the literal.
-        """
         return SchemaField(str(self._number), DataType.Int)
 
 
