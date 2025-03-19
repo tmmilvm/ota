@@ -12,6 +12,10 @@ class Column:
     def __init__(self, data_type: DataType, values: list[Any]) -> None:
         self._data_type = data_type
 
+        if len(values) == 0:
+            self._values = values
+            return
+
         read_type = type(values[0])
         # TODO: Sort out this mess...
         if read_type is str:
@@ -27,6 +31,13 @@ class Column:
                 )
         elif read_type is int:
             if data_type == DataType.Int:
+                self._values = values
+            else:
+                raise RuntimeError(
+                    f"No conversion from {read_type} to {data_type}"
+                )
+        elif read_type is bool:
+            if data_type == DataType.Bool:
                 self._values = values
             else:
                 raise RuntimeError(
