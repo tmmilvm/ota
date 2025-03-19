@@ -21,53 +21,59 @@ A simple query engine, created to explore how these kinds of systems are impleme
 ## Usage example
 
 Let's assume we have a file `test.csv` with the following contents:
+
 ```csv
-a,b
-1,2
-1,4
-2,6
-3,8
-2,10
-1,2
-1,4
-3,6
-3,8
-3,10
-1,2
-2,4
+a,b,c
+1,2,5
+1,4,6
+2,6,9
+3,8,10
+2,10,8
+1,2,5
+1,4,4
+3,6,1
+3,8,4
+3,10,5
+1,2,6
+2,4,4
 ```
 
 ### Aggregation
 
-Aggregation can be performed like this:
+Grouping by columns `a` and `b` and summing column `c` for these groupings can be performed like this:
 
 ```python
 from pathlib import Path
 from ota.execution_context import ExecutionContext
 from ota.logical.expr.impls import (
-    LogicalAggregateExprCount,
-    LogicalColumnExpr,
+    LogicalAggregateExprSum as Sum,
+)
+from ota.logical.expr.impls import (
+    LogicalColumnExpr as Column,
 )
 from ota.schema import DataType, Schema
 
 ctx = ExecutionContext()
-schema = Schema({"a": DataType.Int, "b": DataType.Int})
+schema = Schema({"a": DataType.Int, "b": DataType.Int, "c": DataType.Int})
 plan = (
     ctx.csv(Path("test.csv"), schema)
-    .aggregate(
-        [LogicalColumnExpr("a")],
-        [LogicalAggregateExprCount(LogicalColumnExpr("b"))],
-    )
+    .aggregate([Column("a"), Column("b")], [Sum(Column("c"))])
     .get_logical_plan()
 )
 for batch in ctx.execute(plan):
     print(batch.to_csv())
+
 ```
 
 The output:
 
 ```
-1,5
-2,3
-3,4
+1,2,16
+1,4,10
+2,6,9
+3,8,14
+2,10,8
+3,6,1
+3,10,5
+2,4,4
 ```
