@@ -12,7 +12,7 @@ class Column:
     def __init__(self, data_type: DataType, values: list[Any]) -> None:
         self._data_type = data_type
 
-        if len(values) == 0:
+        if len(values) == 0 or values[0] is None:
             self._values = values
             return
 
@@ -46,7 +46,7 @@ class Column:
         else:
             raise RuntimeError(f"No conversion from {read_type} to {data_type}")
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> int | bool | None:
         """Returns the element corresponding to the given index.
 
         Args:
@@ -55,6 +55,9 @@ class Column:
             An element.
         """
         return self._values[item]
+
+    def __setitem__(self, item: int, value: int | bool | None) -> None:
+        self._values[item] = value
 
     def get_data_type(self) -> DataType:
         """Returns the column's data type.

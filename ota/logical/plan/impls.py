@@ -1,5 +1,5 @@
 from ota.data_loader import DataLoader
-from ota.logical.expr.abc import LogicalExpr
+from ota.logical.expr.abc import LogicalAggregateExpr, LogicalExpr
 from ota.schema import Schema
 
 from .abc import LogicalPlan
@@ -49,10 +49,9 @@ class LogicalProjection(LogicalPlan):
         return f"Projection: {self._exprs}"
 
     def get_schema(self) -> Schema:
-        fields = {}
-        for expr in self._exprs:
-            fields = fields | expr.to_schema_field(self._input_plan)
-        return Schema(fields)
+        return Schema(
+            [expr.to_schema_field(self._input_plan) for expr in self._exprs]
+        )
 
     def get_children(self) -> list[LogicalPlan]:
         return [self._input_plan]
@@ -86,3 +85,45 @@ class LogicalSelection(LogicalPlan):
 
     def get_expr(self) -> LogicalExpr:
         return self._expr
+
+
+class LogicalAggregate(LogicalPlan):
+    _input_plan: LogicalPlan
+    _grouping_exprs: list[LogicalExpr]
+    _aggregation_exprs: list[LogicalAggregateExpr]
+
+    def __init__(
+        self,
+        input_plan: LogicalPlan,
+        grouping_exprs: list[LogicalExpr],
+        aggregation_exprs: list[LogicalAggregateExpr],
+    ) -> None:
+        self._input_plan = input_plan
+        self._grouping_exprs = grouping_exprs
+        self._aggregation_exprs = aggregation_exprs
+
+    def __str__(self) -> str:
+        return (
+            f"Aggregate: groupingExprs={self._grouping_exprs}, "
+            f"aggregationExprs={self._aggregation_exprs}"
+        )
+
+    def get_schema(self) -> Schema:
+        return Schema(
+            [
+                expr.to_schema_field(self._input_plan)
+                for expr in self._grouping_exprs + self._aggregation_exprs
+            ]
+        )
+
+    def get_children(self) -> list["LogicalPlan"]:
+        return [self._input_plan]
+
+    def get_input_plan(self) -> LogicalPlan:
+        return self._input_plan
+
+    def get_grouping_exprs(self) -> list[LogicalExpr]:
+        return self._grouping_exprs
+
+    def get_aggregation_exprs(self) -> list[LogicalAggregateExpr]:
+        return self._aggregation_exprs

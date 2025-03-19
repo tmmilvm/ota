@@ -1,7 +1,12 @@
 from ota.logical.plan.abc import LogicalPlan
 from ota.schema import DataType, SchemaField
 
-from .abc import LogicalBooleanExpr, LogicalExpr, LogicalMathExpr
+from .abc import (
+    LogicalAggregateExpr,
+    LogicalBooleanExpr,
+    LogicalExpr,
+    LogicalMathExpr,
+)
 
 
 class LogicalColumnExpr(LogicalExpr):
@@ -180,3 +185,31 @@ class LogicalLiteralIntExpr(LogicalExpr):
             A schema field for the literal.
         """
         return SchemaField(str(self._number), DataType.Int)
+
+
+class LogicalAggregateExprSum(LogicalAggregateExpr):
+    def __init__(self, expr: LogicalExpr) -> None:
+        super().__init__("SUM", expr)
+
+
+class LogicalAggregateExprMin(LogicalAggregateExpr):
+    def __init__(self, expr: LogicalExpr) -> None:
+        super().__init__("MIN", expr)
+
+
+class LogicalAggregateExprMax(LogicalAggregateExpr):
+    def __init__(self, expr: LogicalExpr) -> None:
+        super().__init__("MAX", expr)
+
+
+class LogicalAggregateExprAvg(LogicalAggregateExpr):
+    def __init__(self, expr: LogicalExpr) -> None:
+        super().__init__("AVG", expr)
+
+
+class LogicalAggregateExprCount(LogicalAggregateExpr):
+    def __init__(self, expr: LogicalExpr) -> None:
+        super().__init__("COUNT", expr)
+
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        return SchemaField(self._name, DataType.Int)

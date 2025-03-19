@@ -4,7 +4,12 @@ from ota.column import Column
 from ota.row_batch import RowBatch
 from ota.schema import DataType
 
-from .abc import PhysicalBooleanExpr, PhysicalExpr, PhysicalMathExpr
+from .abc import (
+    PhysicalAggregateExpr,
+    PhysicalBooleanExpr,
+    PhysicalExpr,
+    PhysicalMathExpr,
+)
 
 
 class PhysicalColumnExpr(PhysicalExpr):
@@ -215,3 +220,130 @@ class PhysicalLiteralIntExpr(PhysicalExpr):
     def evaluate(self, input_batch: RowBatch) -> Column:
         # TODO: Create a literal column class to optimize this
         return Column(DataType.Int, [self._of] * input_batch.num_rows())
+
+
+class PhysicalAggregateExprSum(PhysicalAggregateExpr):
+    class Accumulator(PhysicalAggregateExpr.Accumulator):
+        _value: Any
+
+        def __init__(self):
+            self._value = 0
+
+        def accumulate(self, value: Any) -> None:
+            match value:
+                case int():
+                    self._value += value
+                case _:
+                    raise RuntimeError("Unsupported data type")
+
+        def get_value(self) -> Any:
+            return self._value
+
+    def __str__(self) -> str:
+        return f"SUM({self._input_expr})"
+
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator:
+        return PhysicalAggregateExprSum.Accumulator()
+
+
+class PhysicalAggregateExprMin(PhysicalAggregateExpr):
+    class Accumulator(PhysicalAggregateExpr.Accumulator):
+        _value: Any
+
+        def __init__(self):
+            self._value = None
+
+        def accumulate(self, value: Any) -> None:
+            if self._value is None:
+                self._value = value
+                return
+
+            match value:
+                case int() | str():
+                    self._value = min(self._value, value)
+                case _:
+                    raise RuntimeError("Unsupported data type")
+
+        def get_value(self) -> Any:
+            return self._value
+
+    def __str__(self) -> str:
+        return f"MIN({self._input_expr})"
+
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator:
+        return PhysicalAggregateExprMin.Accumulator()
+
+
+class PhysicalAggregateExprMax(PhysicalAggregateExpr):
+    class Accumulator(PhysicalAggregateExpr.Accumulator):
+        _value: Any
+
+        def __init__(self):
+            self._value = None
+
+        def accumulate(self, value: Any) -> None:
+            if self._value is None:
+                self._value = value
+                return
+
+            match value:
+                case int() | str():
+                    self._value = max(self._value, value)
+                case _:
+                    raise RuntimeError("Unsupported data type")
+
+        def get_value(self) -> Any:
+            return self._value
+
+    def __str__(self) -> str:
+        return f"MAX({self._input_expr})"
+
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator:
+        return PhysicalAggregateExprMax.Accumulator()
+
+
+class PhysicalAggregateExprAvg(PhysicalAggregateExpr):
+    class Accumulator(PhysicalAggregateExpr.Accumulator):
+        _total: Any
+        _num_values: int
+
+        def __init__(self):
+            self._total = 0
+            self._num_values = 0
+
+        def accumulate(self, value: Any) -> None:
+            match value:
+                case int():
+                    self._total += value
+                    self._num_values += 1
+                case _:
+                    raise RuntimeError("Unsupported data type")
+
+        def get_value(self) -> Any:
+            return int(self._total / self._num_values)
+
+    def __str__(self) -> str:
+        return f"AVG({self._input_expr})"
+
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator:
+        return PhysicalAggregateExprAvg.Accumulator()
+
+
+class PhysicalAggregateExprCount(PhysicalAggregateExpr):
+    class Accumulator(PhysicalAggregateExpr.Accumulator):
+        _count: Any
+
+        def __init__(self):
+            self._count = 0
+
+        def accumulate(self, value: Any) -> None:
+            self._count += 1
+
+        def get_value(self) -> Any:
+            return self._count
+
+    def __str__(self) -> str:
+        return f"COUNT({self._input_expr})"
+
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator:
+        return PhysicalAggregateExprCount.Accumulator()

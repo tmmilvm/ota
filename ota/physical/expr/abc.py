@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -73,3 +75,23 @@ class PhysicalBooleanExpr(PhysicalBinaryExpr):
             for i in range(left_value.size())
         ]
         return Column(DataType.Bool, values)
+
+
+class PhysicalAggregateExpr(ABC):
+    _input_expr: PhysicalExpr
+
+    class Accumulator(ABC):
+        def accumulate(self, value: Any): ...
+        def get_value(self) -> Any: ...
+
+    def __init__(self, input_expr: PhysicalExpr) -> None:
+        self._input_expr = input_expr
+
+    @abstractmethod
+    def __str__(self) -> str: ...
+
+    @abstractmethod
+    def create_accumulator(self) -> PhysicalAggregateExpr.Accumulator: ...
+
+    def get_input_expr(self) -> PhysicalExpr:
+        return self._input_expr

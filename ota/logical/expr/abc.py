@@ -160,3 +160,27 @@ class LogicalBooleanExpr(LogicalBinaryExpr):
             A schema field.
         """
         return SchemaField(self._operator, DataType.Bool)
+
+
+class LogicalAggregateExpr(LogicalExpr):
+    _name: str
+    _expr: LogicalExpr
+
+    def __init__(self, name: str, expr: LogicalExpr) -> None:
+        if type(self) is LogicalAggregateExpr:
+            raise RuntimeError(
+                "Can't instantiate LogicalAggregateExpr directly"
+            )
+        self._name = name
+        self._expr = expr
+
+    def __str__(self):
+        return f"{self._name}({self._expr})"
+
+    def to_schema_field(self, plan: LogicalPlan) -> SchemaField:
+        return SchemaField(
+            self._name, self._expr.to_schema_field(plan).data_type
+        )
+
+    def get_expr(self) -> LogicalExpr:
+        return self._expr

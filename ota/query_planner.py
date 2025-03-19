@@ -2,6 +2,11 @@ from typing import cast
 
 from ota.logical.expr.abc import LogicalBinaryExpr, LogicalExpr
 from ota.logical.expr.impls import (
+    LogicalAggregateExprAvg,
+    LogicalAggregateExprCount,
+    LogicalAggregateExprMax,
+    LogicalAggregateExprMin,
+    LogicalAggregateExprSum,
     LogicalBooleanExprAnd,
     LogicalBooleanExprEq,
     LogicalBooleanExprGt,
@@ -20,12 +25,18 @@ from ota.logical.expr.impls import (
 )
 from ota.logical.plan.abc import LogicalPlan
 from ota.logical.plan.impls import (
+    LogicalAggregate,
     LogicalProjection,
     LogicalScan,
     LogicalSelection,
 )
 from ota.physical.expr.abc import PhysicalBinaryExpr, PhysicalExpr
 from ota.physical.expr.impls import (
+    PhysicalAggregateExprAvg,
+    PhysicalAggregateExprCount,
+    PhysicalAggregateExprMax,
+    PhysicalAggregateExprMin,
+    PhysicalAggregateExprSum,
     PhysicalBooleanExprAnd,
     PhysicalBooleanExprEq,
     PhysicalBooleanExprGt,
@@ -42,7 +53,9 @@ from ota.physical.expr.impls import (
     PhysicalMathExprMultiply,
     PhysicalMathExprSubtract,
 )
+from ota.physical.plan.abc import PhysicalPlan
 from ota.physical.plan.impls import (
+    PhysicalAggregate,
     PhysicalProjection,
     PhysicalScan,
     PhysicalSelection,
@@ -50,7 +63,7 @@ from ota.physical.plan.impls import (
 from ota.schema import Schema
 
 
-def create_physical_plan(logical_plan: LogicalPlan):
+def create_physical_plan(logical_plan: LogicalPlan) -> PhysicalPlan:
     match logical_plan:
         case LogicalScan():
             logical_plan = cast(LogicalScan, logical_plan)
@@ -62,11 +75,10 @@ def create_physical_plan(logical_plan: LogicalPlan):
             return _create_physical_projection(logical_plan)
         case LogicalSelection():
             logical_plan = cast(LogicalSelection, logical_plan)
-            input_plan = create_physical_plan(logical_plan.get_input_plan())
-            filter_expr = _create_physical_expr(
-                logical_plan.get_expr(), logical_plan.get_input_plan()
-            )
-            return PhysicalSelection(input_plan, filter_expr)
+            return _create_physical_selection(logical_plan)
+        case LogicalAggregate():
+            logical_plan = cast(LogicalAggregate, logical_plan)
+            return _create_physical_aggregate(logical_plan)
         case _:
             raise RuntimeError(f"Unsupported plan: {logical_plan}")
 
@@ -90,6 +102,55 @@ def _create_physical_projection(
         )
     )
     return PhysicalProjection(input_plan, projection_schema, projection_exprs)
+
+
+def _create_physical_selection(
+    logical_plan: LogicalSelection,
+) -> PhysicalSelection:
+    input_plan = create_physical_plan(logical_plan.get_input_plan())
+    filter_expr = _create_physical_expr(
+        logical_plan.get_expr(), logical_plan.get_input_plan()
+    )
+    return PhysicalSelection(input_plan, filter_expr)
+
+
+def _create_physical_aggregate(
+    logical_plan: LogicalAggregate,
+) -> PhysicalAggregate:
+    input_plan = create_physical_plan(logical_plan.get_input_plan())
+    grouping_exprs = [
+        _create_physical_expr(expr, logical_plan.get_input_plan())
+        for expr in logical_plan.get_grouping_exprs()
+    ]
+    aggregation_exprs = []
+    for expr in logical_plan.get_aggregation_exprs():
+        match expr:
+            case LogicalAggregateExprSum():
+                physical_cls = PhysicalAggregateExprSum
+            case LogicalAggregateExprMin():
+                physical_cls = PhysicalAggregateExprMin
+            case LogicalAggregateExprMax():
+                physical_cls = PhysicalAggregateExprMax
+            case LogicalAggregateExprAvg():
+                physical_cls = PhysicalAggregateExprAvg
+            case LogicalAggregateExprCount():
+                physical_cls = PhysicalAggregateExprCount
+            case _:
+                raise RuntimeError("Unsupported aggregate expr")
+        aggregation_exprs.append(
+            physical_cls(
+                _create_physical_expr(
+                    expr.get_expr(),
+                    logical_plan.get_input_plan(),
+                )
+            )
+        )
+    return PhysicalAggregate(
+        input_plan,
+        grouping_exprs,
+        aggregation_exprs,
+        logical_plan.get_schema(),
+    )
 
 
 def _create_physical_expr(
