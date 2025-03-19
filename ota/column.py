@@ -1,16 +1,39 @@
 """A column in a RowBatch."""
 
+from typing import Any
+
 from ota.schema import DataType
 
 
 class Column:
     _data_type: DataType
-    _values: list[int]
+    _values: list[int | bool]
 
-    def __init__(self, data_type: DataType, values: list[int]) -> None:
+    def __init__(self, data_type: DataType, values: list[Any]) -> None:
         self._data_type = data_type
-        cast = {DataType.Int: int, DataType.Bool: bool}[data_type]
-        self._values = list(map(cast, values))
+
+        read_type = type(values[0])
+        # TODO: Sort out this mess...
+        if read_type is str:
+            if data_type == DataType.Bool:
+                self._values = list(
+                    map(lambda s: s in ["true", "True"], values)
+                )
+            elif data_type == DataType.Int:
+                self._values = list(map(int, values))
+            else:
+                raise RuntimeError(
+                    f"No conversion from {read_type} to {data_type}"
+                )
+        elif read_type is int:
+            if data_type == DataType.Int:
+                self._values = values
+            else:
+                raise RuntimeError(
+                    f"No conversion from {read_type} to {data_type}"
+                )
+        else:
+            raise RuntimeError(f"No conversion from {read_type} to {data_type}")
 
     def __getitem__(self, item):
         """Returns the element corresponding to the given index.
