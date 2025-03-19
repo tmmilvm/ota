@@ -38,26 +38,26 @@ a,b,c
 2,4,4
 ```
 
-### Aggregation
-
-Grouping by columns `a` and `b` and summing column `c` for these groupings can be performed like this:
+Selecting rows where `a > 1`, grouping by `a` and `b`, summing column `c` for the groups and returning the columns `a` and `SUM` can be done as follows:
 
 ```python
 from pathlib import Path
 from ota.execution_context import ExecutionContext
 from ota.logical.expr.impls import (
     LogicalAggregateExprSum as Sum,
-)
-from ota.logical.expr.impls import (
+    LogicalBooleanExprGt as Gt,
     LogicalColumnExpr as Column,
+    LogicalLiteralIntExpr as Int,
 )
 from ota.schema import DataType, Schema
 
 ctx = ExecutionContext()
 schema = Schema({"a": DataType.Int, "b": DataType.Int, "c": DataType.Int})
 plan = (
-    ctx.csv(Path("test.csv"), schema)
+    ctx.csv(Path("../test.csv"), schema)
+    .select(Gt(Column("a"), Int(1)))
     .aggregate([Column("a"), Column("b")], [Sum(Column("c"))])
+    .project([Column("a"), Column("SUM")])
     .get_logical_plan()
 )
 for batch in ctx.execute(plan):
@@ -68,12 +68,10 @@ for batch in ctx.execute(plan):
 The output:
 
 ```
-1,2,16
-1,4,10
-2,6,9
-3,8,14
-2,10,8
-3,6,1
-3,10,5
-2,4,4
+2,9
+3,14
+2,8
+3,1
+3,5
+2,4
 ```
